@@ -3,10 +3,10 @@ import { ResultDto } from "../dtos/result.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadedFileDto } from "../dtos/uploaded-file.dto";
 import { AgreementDTO } from "../dtos/agreement/create-agreement.dto";
-import { Flunt } from "src/utils/flunt";
 import { AgreementService } from "../services/agreement.service";
 import { AgreementFilter } from "../models/agreement-filter.model";
 import { ApiConsumes } from "@nestjs/swagger";
+import { Flunt } from "timelook/src/utils/flunt";
 
 @Controller('v1/contrato')
 export class AgreementController {
@@ -76,7 +76,7 @@ export class AgreementController {
     }
 
     @Get('download/:id')
-    async download(@Param('id') agreementId: string, @Res() res) {
+    async download(@Param('id') agreementId: string, @Res() res: any) {
         try {
             const downloadStream = await this.service.downloadDocument(agreementId);
 
@@ -90,7 +90,7 @@ export class AgreementController {
             res.set('Content-Type', 'application/octet-stream');
             res.set('Content-Disposition', `attachment; filename=${downloadStream.fileName}`); // Substitua pelo nome desejado
 
-            downloadStream.stream.pipe(res);
+            downloadStream.stream?.pipe(res);
         } catch (error) {
             throw new HttpException(
                 new ResultDto('Ops, ocorreu algum erro no servidor!', false, null, null),
