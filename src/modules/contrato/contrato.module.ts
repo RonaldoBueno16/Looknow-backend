@@ -6,11 +6,9 @@ import { AgreementSchema } from './schemas/agreement.schema';
 import { AgreementService } from './services/agreement.service';
 dotenv.config();
 
-console.log(process.env.CONNECTION_STRING)
-
 @Module({
     imports: [
-        MongooseModule.forRoot(process.env.CONNECTION_STRING),
+        MongooseModule.forRoot('mongodb://158.69.50.126:27019'),
         MongooseModule.forFeature([
             {
                 name: 'Acordos',
