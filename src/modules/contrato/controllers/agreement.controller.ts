@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Query, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, HttpException, HttpStatus, Inject, Param, Post, Query, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { ResultDto } from "../dtos/result.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadedFileDto } from "../dtos/uploaded-file.dto";
@@ -6,12 +6,17 @@ import { AgreementDTO } from "../dtos/agreement/create-agreement.dto";
 import { AgreementService } from "../services/agreement.service";
 import { AgreementFilter } from "../models/agreement-filter.model";
 import { ApiConsumes } from "@nestjs/swagger";
-import {Flunt} from '../../../utils/flunt'
+import { Flunt } from '../../../utils/flunt'
+import { convertToHtml } from "mammoth";
+import { buffer } from "stream/consumers";
+import { OpenAIService } from "../services/openai.service";
+import { IResumeText } from "../models/openai-resume.model";
 
 @Controller('v1/contrato')
 export class AgreementController {
     constructor(
-        private readonly service: AgreementService
+        private readonly service: AgreementService,
+        private readonly openAIService: OpenAIService
     ) {
     }
 
@@ -34,7 +39,6 @@ export class AgreementController {
         flunt.isRequired(model.segmento, 'Informe o segmento (segmento)');
         flunt.isRequired(model.gerencia_responsavel, 'Informe a gerencia responsavel (gerencia_responsavel)');
         flunt.isRequired(model.data_inicial_contrato, 'Informe a data inicial do contrato (data_inicial_contrato)');
-        flunt.isRequired(model.palavras_chaves, 'Informe as palavras chaves (palavras_chaves)');
         if (flunt.errors.length > 0) {
             throw new HttpException(
                 new ResultDto('Erros de validação', false, null, [flunt.errors]),
@@ -48,6 +52,25 @@ export class AgreementController {
         }
 
         try {
+            if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                try {
+                    const { value: fileContent } = await convertToHtml({ buffer: file.buffer });
+
+                    const result: IResumeText = await this.openAIService.getResumeFromText(fileContent) as IResumeText;
+
+                    model.palavras_chaves = result.palavras_chaves;
+                    model.resumo = result.resumo;
+                }
+                catch (error) {
+                    console.log(error);
+
+                    throw new HttpException(
+                        new ResultDto('Ops, ocorreu algum erro no servidor!', false, null, ['Não foi possível realizar a leitura do documento']),
+                        HttpStatus.INTERNAL_SERVER_ERROR
+                    )
+                }
+            }
+
             const result = await this.service.create(file, model);
 
             return new ResultDto('Documento criado com sucesso!', true, result, null);
@@ -86,7 +109,7 @@ export class AgreementController {
                     HttpStatus.NOT_FOUND
                 );
             }
-            
+
             res.set('Content-Type', 'application/octet-stream');
             res.set('Content-Disposition', `attachment; filename=${downloadStream.fileName}`); // Substitua pelo nome desejado
 

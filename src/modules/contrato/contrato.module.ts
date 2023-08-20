@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AgreementController } from './controllers/agreement.controller';
 import { AgreementSchema } from './schemas/agreement.schema';
 import { AgreementService } from './services/agreement.service';
+import { OpenAIService } from './services/openai.service';
 dotenv.config();
 
 @Module({
@@ -17,7 +18,7 @@ dotenv.config();
         ])
     ],
     controllers: [AgreementController],
-    providers: [AgreementService]
+    providers: [AgreementService, OpenAIService]
 })
 
 export class ContratoModule { }
