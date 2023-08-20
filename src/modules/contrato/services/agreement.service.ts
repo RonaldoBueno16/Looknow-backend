@@ -41,7 +41,7 @@ export class AgreementService {
             if (filters.segmento) query = query.where('segmento', new RegExp(filters.segmento, 'i'));
             if (filters.modelo_contrato) query = query.where('modelo_contrato', new RegExp(filters.modelo_contrato, 'i'));
             if (filters.numero_contrato) query = query.where('numero_contrato', new RegExp(filters.numero_contrato, 'i'));
-            if (filters.gerencia_responsavel) query = query.where('numero_contrato', new RegExp(filters.numero_contrato, 'i'));
+            if (filters.gerencia_responsavel) query = query.where('numero_contrato', new RegExp(filters.gerencia_responsavel, 'i'));
 
             if (filters.data_inicial && filters.data_final) {
                 const dataInicial = new Date(filters.data_inicial);
