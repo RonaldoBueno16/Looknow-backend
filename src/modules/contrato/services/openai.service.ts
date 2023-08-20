@@ -5,10 +5,11 @@ import { IResumeText } from "../models/openai-resume.model";
 @Injectable()
 export class OpenAIService {
     private client = new OpenAI({
-        apiKey: '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'
+        apiKey: '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'
     });
 
     async getResumeFromText(text: string): Promise<IResumeText> {
+
         const completion = await this.client.chat.completions.create({
             model: 'gpt-3.5-turbo',
             messages: [{
