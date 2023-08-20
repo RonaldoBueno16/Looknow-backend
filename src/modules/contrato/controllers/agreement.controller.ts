@@ -6,7 +6,7 @@ import { AgreementDTO } from "../dtos/agreement/create-agreement.dto";
 import { AgreementService } from "../services/agreement.service";
 import { AgreementFilter } from "../models/agreement-filter.model";
 import { ApiConsumes } from "@nestjs/swagger";
-import { Flunt } from "src/utils/flunt";
+import {Flunt} from '../../../utils/flunt'
 
 @Controller('v1/contrato')
 export class AgreementController {
